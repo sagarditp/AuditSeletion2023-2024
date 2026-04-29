@@ -8,49 +8,67 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        :root { --blue: #1a73e8; --blue-dark: #1557b0; --blue-light: #e8f0fe; --gray-200: #e8eaed; --gray-700: #5f6368; --gray-900: #202124; --text: #3c4043; --radius: 12px; }
-        body { font-family: 'Hind Siliguri', sans-serif; background: #f0f4ff; display: flex; justify-content: center; padding: 24px 16px; }
-        .container { width: 100%; max-width: 520px; background: #fff; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); overflow: hidden; }
-        .header { background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%); padding: 28px 24px; text-align: center; color: #fff; }
-        .content { padding: 28px 24px; }
-        .search-box input { width: 100%; padding: 14px; border: 2px solid var(--gray-200); border-radius: var(--radius); outline: none; margin-bottom: 12px; }
-        .btn-search { width: 100%; padding: 14px; border: none; border-radius: var(--radius); background: var(--blue); color: #fff; font-weight: 700; cursor: pointer; }
-        #searchResult { display: none; margin-top: 20px; border: 1px solid var(--gray-200); border-radius: var(--radius); overflow: hidden; }
-        .result-header { background: var(--blue-light); padding: 12px; font-weight: 700; color: var(--blue-dark); }
-        .data-row { display: flex; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid #eee; font-size: 14px; }
-        .loading { text-align: center; display: none; padding: 10px; color: var(--gray-500); }
+        :root { --blue: #1a73e8; --blue-dark: #1557b0; --blue-light: #e8f0fe; --gray-200: #e8eaed; --gray-900: #202124; --radius: 12px; }
+        body { font-family: 'Hind Siliguri', sans-serif; background: linear-gradient(135deg, #e8f0fe 0%, #f0f4ff 100%); min-height: 100vh; display: flex; justify-content: center; padding: 20px; }
+        .container { width: 100%; max-width: 500px; background: #fff; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden; height: fit-content; }
+        .header { background: linear-gradient(135deg, var(--blue), var(--blue-dark)); padding: 30px 20px; text-align: center; color: #fff; }
+        .content { padding: 25px; }
+        .search-box input { width: 100%; padding: 15px; border: 2px solid var(--gray-200); border-radius: var(--radius); outline: none; font-size: 16px; transition: 0.3s; background: #f9f9f9; }
+        .search-box input:focus { border-color: var(--blue); background: #fff; box-shadow: 0 0 0 4px rgba(26,115,232,0.1); }
+        .btn-search { width: 100%; padding: 15px; border: none; border-radius: var(--radius); background: var(--blue); color: #fff; font-weight: 700; cursor: pointer; margin-top: 15px; font-size: 16px; }
+        #loader { display: none; text-align: center; margin-top: 15px; color: #666; font-size: 14px; }
+        #searchResult { display: none; margin-top: 20px; border: 1px solid var(--gray-200); border-radius: var(--radius); overflow: hidden; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .result-header { background: var(--blue-light); padding: 12px; font-weight: 700; color: var(--blue-dark); text-align: center; }
+        .data-row { display: flex; justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 15px; }
+        .data-row:last-child { border-bottom: none; }
+        .footer { background: #202124; color: #ddd; padding: 20px; font-size: 13px; text-align: center; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <h2>Audit Selection Search</h2>
-        <p>কর বর্ষ ২০২৩–২০২৪</p>
+        <h2 style="margin-bottom: 5px;">Audit Selection Search</h2>
+        <p style="font-size: 14px; opacity: 0.9;">কর বর্ষ ২০২৩–২০২৪</p>
     </div>
+
     <div class="content">
-        <input type="text" id="searchID" class="search-box" style="width:100%;" placeholder="TIN লিখে এন্টার দিন...">
+        <div class="search-box">
+            <input type="text" id="searchID" placeholder="আপনার ১২ ডিজিটের TIN লিখুন..." onkeypress="if(event.keyCode==13) findAudit()">
+        </div>
         <button class="btn-search" onclick="findAudit()">অনুসন্ধান করুন</button>
-        <div id="loader" class="loading">⏳ ডেটা লোড হচ্ছে, দয়া করে অপেক্ষা করুন...</div>
+        <div id="loader">⏳ ডেটা লোড হচ্ছে (৭২,৩৩০+ রো)...</div>
         <div id="searchResult"></div>
+    </div>
+
+    <div class="footer">
+        <b>সাগর দাশ</b>
+        সদস্য, সিলেট জেলা কর আইনজীবী সমিতি<br>
+        📞 01687036519 | <a href="https://sagar.pro.bd" style="color:#8ab4f8; text-decoration:none;">sagar.pro.bd</a>
     </div>
 </div>
 
 <script>
     let auditData = [];
-    const csvFileName = "Audit Selection 2023-2024.xlsx - Sheet1.csv";
+    const csvFile = "Audit Selection 2023-2024.xlsx - Sheet1.csv";
 
-    // পেজ লোড হওয়ার সাথে সাথে ডেটা পড়া শুরু করবে
+    // পেজ লোড হওয়ার সাথে সাথে CSV থেকে ডেটা মেমোরিতে নিবে
     window.onload = function() {
-        document.getElementById('loader').style.display = "block";
-        Papa.parse(csvFileName, {
+        const loader = document.getElementById('loader');
+        loader.style.display = "block";
+        
+        Papa.parse(csvFile, {
             download: true,
             header: true,
             skipEmptyLines: true,
             complete: function(results) {
                 auditData = results.data;
-                document.getElementById('loader').style.display = "none";
-                console.log("Total rows loaded:", auditData.length);
+                loader.style.display = "none";
+                console.log("Total Loaded:", auditData.length);
+            },
+            error: function() {
+                loader.innerHTML = "❌ ডেটা ফাইল পাওয়া যায়নি।";
             }
         });
     };
@@ -59,17 +77,15 @@
         const id = document.getElementById('searchID').value.trim();
         const resDiv = document.getElementById('searchResult');
         
-        if (!auditData.length) return alert("ডেটা এখনো লোড হচ্ছে, কয়েক সেকেন্ড পর চেষ্টা করুন।");
-        if (!id) return alert("TIN নম্বর লিখুন।");
+        if (!id) return alert("দয়া করে TIN নম্বর দিন।");
+        if (auditData.length === 0) return alert("ডেটা এখনো লোড হচ্ছে, দয়া করে ২ সেকেন্ড অপেক্ষা করুন।");
 
-        resDiv.style.display = "none";
-        
-        // অত্যন্ত সতর্কতার সাথে সার্চ করা হচ্ছে (Scientific notation handle করে)
-        let found = auditData.find(row => {
+        // ৭২ হাজার ডেটার মধ্যে দ্রুত সার্চ করার লজিক
+        const found = auditData.find(row => {
             if (!row.TIN) return false;
-            let csvTin = row.TIN.toString().trim();
-            // যদি ফাইলে TIN বৈজ্ঞানিক সংকেতে থাকে (যেমন 4.58E+11), তবে এটি ইনপুটের সাথে মিলবে
-            return csvTin === id || parseFloat(csvTin).toString() === id;
+            let tinStr = row.TIN.toString().trim();
+            // Scientific notation (4.58E+11) handle করার জন্য parseFloat ব্যবহার করা হয়েছে
+            return tinStr === id || parseFloat(tinStr).toString() === id;
         });
 
         if (found) {
@@ -79,12 +95,14 @@
                 <div class="data-row"><span>TIN:</span><b>${found.TIN}</b></div>
                 <div class="data-row"><span>Zone:</span><b>${found.Zone}</b></div>
                 <div class="data-row"><span>Circle:</span><b>${found.Circle}</b></div>
+                <div class="data-row"><span>Year:</span><b>2023-2024</b></div>
             `;
         } else {
             resDiv.style.display = "block";
-            resDiv.innerHTML = "<p style='padding:15px; color:red; text-align:center;'>❌ অডিট তালিকায় এই TIN পাওয়া যায়নি।</p>";
+            resDiv.innerHTML = "<p style='padding:20px; color:red; text-align:center; font-weight:bold;'>❌ এই TIN অডিট তালিকায় নেই।</p>";
         }
     }
 </script>
+
 </body>
 </html>
