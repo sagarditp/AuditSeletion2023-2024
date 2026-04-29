@@ -8,47 +8,81 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        :root { --blue: #1a73e8; --blue-dark: #1557b0; --blue-light: #e8f0fe; --gray-200: #e8eaed; --gray-900: #202124; --radius: 12px; }
-        body { font-family: 'Hind Siliguri', sans-serif; background: #f0f4ff; min-height: 100vh; display: flex; justify-content: center; padding: 20px; }
-        .container { width: 100%; max-width: 500px; background: #fff; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; height: fit-content; }
-        .header { background: linear-gradient(135deg, var(--blue), var(--blue-dark)); padding: 30px 20px; text-align: center; color: #fff; }
-        .content { padding: 25px; }
-        .search-box input { width: 100%; padding: 15px; border: 2px solid var(--gray-200); border-radius: var(--radius); outline: none; font-size: 16px; background: #f9f9f9; text-align: center; }
-        .btn-search { width: 100%; padding: 15px; border: none; border-radius: var(--radius); background: var(--blue); color: #fff; font-weight: 700; cursor: pointer; margin-top: 15px; font-size: 16px; }
-        #status { text-align: center; margin-top: 10px; font-size: 13px; color: #666; }
-        #searchResult { display: none; margin-top: 20px; border: 1px solid var(--gray-200); border-radius: var(--radius); overflow: hidden; background: #fff; }
+        :root {
+            --blue: #1a73e8; --blue-dark: #1557b0; --blue-light: #e8f0fe;
+            --gray-100: #f1f3f4; --gray-200: #e8eaed; --gray-700: #5f6368;
+            --gray-900: #202124; --text: #3c4043; --radius: 12px;
+        }
+        body {
+            font-family: 'Hind Siliguri', sans-serif;
+            background: linear-gradient(135deg, #e8f0fe 0%, #f0f4ff 100%);
+            min-height: 100vh; display: flex; justify-content: center; padding: 24px 16px;
+        }
+        .container { width: 100%; max-width: 520px; background: #fff; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden; }
+        .header { background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%); padding: 30px 24px; text-align: center; color: #fff; }
+        .badge { display: inline-block; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3); padding: 4px 12px; border-radius: 20px; font-size: 11px; margin-bottom: 12px; text-transform: uppercase; }
+        .content { padding: 28px 24px; }
+        .search-box input { width: 100%; padding: 14px; border: 2px solid var(--gray-200); border-radius: var(--radius); outline: none; background: #f8f9fa; text-align: center; font-size: 16px; transition: 0.2s; }
+        .search-box input:focus { border-color: var(--blue); background: #fff; }
+        .btn-search { width: 100%; padding: 14px; border: none; border-radius: var(--radius); background: var(--blue); color: #fff; font-weight: 700; cursor: pointer; margin-top: 15px; font-size: 16px; }
+        #status { text-align: center; margin-top: 10px; font-size: 13px; color: var(--gray-700); }
+        #searchResult { display: none; margin-top: 20px; border: 1px solid var(--gray-200); border-radius: var(--radius); overflow: hidden; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .result-header { background: var(--blue-light); padding: 12px; font-weight: 700; color: var(--blue-dark); text-align: center; }
-        .data-row { display: flex; justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 15px; }
-        .footer { background: #202124; color: #ddd; padding: 20px; font-size: 13px; text-align: center; }
+        .data-row { display: flex; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--gray-100); font-size: 14px; }
+        
+        /* Footer Styling */
+        .footer { background: var(--gray-900); color: #e8eaed; font-size: 13px; }
+        .footer-section { padding: 20px 24px; border-bottom: 1px solid #3c4043; }
+        .footer-section:last-child { border-bottom: none; }
+        .footer-tag { color: #8ab4f8; font-size: 10px; font-weight: 700; text-transform: uppercase; background: rgba(138,180,248,0.1); padding: 2px 8px; border-radius: 4px; display: inline-block; margin-bottom: 8px; }
+        .footer b { color: #fff; font-size: 15px; display: block; margin-bottom: 4px; }
+        .footer a { color: #8ab4f8; text-decoration: none; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <h2 style="margin-bottom: 5px;">Audit Selection Search</h2>
-        <p style="font-size: 14px; opacity: 0.9;">কর বর্ষ ২০২৩–২০২৪</p>
+        <div class="badge">কর বর্ষ ২০২৩–২০২৪</div>
+        <h2 style="font-weight: 700;">Audit Selection Search</h2>
+        <p style="font-size: 13px; opacity: 0.8; margin-top: 5px;">অডিট সিলেকশন তথ্য যাচাই করুন</p>
     </div>
 
     <div class="content">
         <div class="search-box">
-            <input type="number" id="searchID" placeholder="আপনার ১২ ডিজিটের TIN লিখুন..." onkeypress="if(event.keyCode==13) findAudit()">
+            <input type="number" id="searchID" placeholder="TIN নম্বর লিখে এন্টার দিন..." onkeypress="if(event.keyCode==13) findAudit()">
         </div>
         <button class="btn-search" onclick="findAudit()">অনুসন্ধান করুন</button>
-        <div id="status">⏳ ফাইল লোড হচ্ছে...</div>
+        <div id="status">⏳ ডেটা ফাইল লোড হচ্ছে...</div>
         <div id="searchResult"></div>
     </div>
 
     <div class="footer">
-        <b>সাগর দাশ</b>
-        সদস্য, সিলেট জেলা কর আইনজীবী সমিতি<br>
-        📞 01687036519
+        <div class="footer-section">
+            <span class="footer-tag">Web App Developed By</span>
+            <b>সাগর দাশ</b>
+            আয়কর আইনজীবী ও ফিন্যান্সিয়াল এডভাইজর<br>
+            সদস্য, সিলেট জেলা কর আইনজীবী সমিতি<br>
+            📞 Mobile: <a href="tel:01687036519">01687036519</a><br>
+            🌐 Website: <a href="https://sagar.pro.bd" target="_blank">sagar.pro.bd</a>
+        </div>
+
+        <div class="footer-section">
+            <span class="footer-tag">বিশেষ সহযোগিতায়</span>
+            <b>Advocate Abdul Alim Pathan <small style="font-weight: 400; color: #9aa0a6;">LL.B, LL.M</small></b>
+            Income Tax, VAT & Immigration Consultant<br>
+            Vice President, Sylhet District Taxes Bar Association<br>
+            📍 Agrony-14, Londoni Road, Subidbazar, Sylhet<br>
+            📞 Phone: <a href="tel:01711922122">01711 922 122</a><br>
+            ✉️ Email: <a href="mailto:pathansyl@gmail.com">pathansyl@gmail.com</a>
+        </div>
     </div>
 </div>
 
 <script>
     let auditData = [];
-    // ফাইলের নাম একদম হুবহু হতে হবে
+    // ফাইলের নাম নিশ্চিত করুন: "Audit Selection 2023-2024.csv"
     const csvFile = "Audit Selection 2023-2024.csv";
 
     window.onload = function() {
@@ -59,11 +93,10 @@
             skipEmptyLines: true,
             complete: function(results) {
                 auditData = results.data;
-                status.innerHTML = "✅ " + auditData.length + " টি ডেটা তৈরি আছে।";
-                console.log("Data Loaded.");
+                status.innerHTML = "✅ " + auditData.length.toLocaleString() + " টি ডেটা সার্চ করার জন্য প্রস্তুত।";
             },
             error: function() {
-                status.innerHTML = "❌ ডেটা ফাইল পাওয়া যায়নি। ফাইলের নাম চেক করুন।";
+                status.innerHTML = "❌ ডেটা ফাইল লোড করা যায়নি।";
             }
         });
     };
@@ -72,10 +105,12 @@
         const id = document.getElementById('searchID').value.trim();
         const resDiv = document.getElementById('searchResult');
         
-        if (!id) { alert("TIN নম্বর লিখুন।"); return; }
-        if (auditData.length === 0) { alert("ডেটা এখনো লোড হয়নি।"); return; }
+        if (!id) return alert("অনুগ্রহ করে TIN নম্বরটি লিখুন।");
+        if (auditData.length === 0) return alert("ডেটা এখনো লোড হচ্ছে, কিছুক্ষণ অপেক্ষা করুন।");
 
-        // TIN কলামে সার্চ
+        resDiv.style.display = "none";
+
+        // TIN কলামে সঠিক মিল খোঁজা
         const found = auditData.find(row => {
             return row.TIN && row.TIN.toString().trim() === id;
         });
@@ -84,14 +119,14 @@
             resDiv.style.display = "block";
             resDiv.innerHTML = `
                 <div class="result-header">✅ অডিট তালিকায় পাওয়া গেছে</div>
-                <div class="data-row"><span>TIN:</span><b>${found.TIN}</b></div>
+                <div class="data-row"><span>TIN নম্বর:</span><b>${found.TIN}</b></div>
                 <div class="data-row"><span>Zone:</span><b>${found.Zone}</b></div>
                 <div class="data-row"><span>Circle:</span><b>${found.Circle}</b></div>
-                <div class="data-row"><span>Year:</span><b>${found['Assesment Year']}</b></div>
+                <div class="data-row"><span>কর বর্ষ:</span><b>${found['Assesment Year'] || '2023-2024'}</b></div>
             `;
         } else {
             resDiv.style.display = "block";
-            resDiv.innerHTML = "<p style='padding:20px; color:red; text-align:center; font-weight:bold;'>❌ এই TIN অডিট তালিকায় নেই।</p>";
+            resDiv.innerHTML = "<p style='padding:20px; color:#d93025; text-align:center; font-weight:bold;'>❌ এই TIN অডিট তালিকায় নেই।</p>";
         }
     }
 </script>
