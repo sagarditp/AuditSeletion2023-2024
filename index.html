@@ -1,97 +1,502 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
+<html>
+  <head>
+    <base target="_top">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audit Selection List 2023-2024</title>
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Serif+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #f0f2f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .container { margin-top: 40px; margin-bottom: 40px; }
-        .card { border: none; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); }
-        .card-header { background-color: #1a73e8; color: white; border-radius: 12px 12px 0 0 !important; padding: 20px; }
-        .table thead { background-color: #f8f9fa; }
-        .dataTables_filter input { border-radius: 20px; padding: 5px 15px; border: 1px solid #ddd; }
-        .dt-buttons .btn { border-radius: 5px; font-size: 14px; margin-right: 5px; }
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      :root {
+        --blue: #1a73e8;
+        --blue-dark: #1557b0;
+        --blue-light: #e8f0fe;
+        --green: #1a8f4e;
+        --green-wa: #25D366;
+        --green-wa-dark: #128C7E;
+        --gray-50: #f8f9fa;
+        --gray-100: #f1f3f4;
+        --gray-200: #e8eaed;
+        --gray-300: #dadce0;
+        --gray-500: #80868b;
+        --gray-700: #5f6368;
+        --gray-900: #202124;
+        --text: #3c4043;
+        --radius: 12px;
+        --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 20px rgba(0,0,0,0.06);
+        --shadow-hover: 0 2px 6px rgba(0,0,0,0.1), 0 8px 30px rgba(0,0,0,0.1);
+      }
+
+      body {
+        font-family: 'Hind Siliguri', sans-serif;
+        background: linear-gradient(135deg, #e8f0fe 0%, #f0f4ff 50%, #e8f5e9 100%);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 24px 16px;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 520px;
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        animation: slideUp 0.4s ease;
+      }
+
+      @keyframes slideUp {
+        from { opacity: 0; transform: translateY(16px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      /* ── Header ── */
+      .header {
+        background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%);
+        padding: 28px 24px 24px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .header::before {
+        content: '';
+        position: absolute;
+        top: -40px; right: -40px;
+        width: 140px; height: 140px;
+        background: rgba(255,255,255,0.06);
+        border-radius: 50%;
+      }
+
+      .header::after {
+        content: '';
+        position: absolute;
+        bottom: -30px; left: -20px;
+        width: 100px; height: 100px;
+        background: rgba(255,255,255,0.04);
+        border-radius: 50%;
+      }
+
+      .badge {
+        display: inline-block;
+        background: rgba(255,255,255,0.18);
+        border: 1px solid rgba(255,255,255,0.3);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        padding: 4px 12px;
+        border-radius: 20px;
+        margin-bottom: 12px;
+      }
+
+      .header-title {
+        color: #fff;
+        font-size: 22px;
+        font-weight: 700;
+        line-height: 1.3;
+        position: relative;
+        z-index: 1;
+      }
+
+      .header-sub {
+        color: rgba(255,255,255,0.75);
+        font-size: 13px;
+        margin-top: 6px;
+        position: relative;
+        z-index: 1;
+      }
+
+      /* ── Search area ── */
+      .content {
+        padding: 28px 24px;
+      }
+
+      .search-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--gray-700);
+        margin-bottom: 8px;
+        display: block;
+        letter-spacing: 0.3px;
+      }
+
+      .search-box {
+        position: relative;
+      }
+
+      .search-box input {
+        width: 100%;
+        padding: 14px 48px 14px 16px;
+        border: 2px solid var(--gray-200);
+        border-radius: var(--radius);
+        font-size: 15px;
+        font-family: 'Hind Siliguri', sans-serif;
+        color: var(--text);
+        outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        background: var(--gray-50);
+      }
+
+      .search-box input:focus {
+        border-color: var(--blue);
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(26,115,232,0.1);
+      }
+
+      .search-box input::placeholder { color: var(--gray-500); }
+
+      .search-icon {
+        position: absolute;
+        right: 14px; top: 50%;
+        transform: translateY(-50%);
+        color: var(--gray-500);
+        font-size: 18px;
+        pointer-events: none;
+      }
+
+      .btn {
+        width: 100%;
+        padding: 14px;
+        border: none;
+        border-radius: var(--radius);
+        font-size: 15px;
+        font-family: 'Hind Siliguri', sans-serif;
+        font-weight: 700;
+        cursor: pointer;
+        margin-top: 12px;
+        transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+        letter-spacing: 0.3px;
+      }
+
+      .btn:active { transform: scale(0.98); }
+
+      .btn-search {
+        background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+        color: #fff;
+        box-shadow: 0 2px 8px rgba(26,115,232,0.3);
+      }
+
+      .btn-search:hover { box-shadow: 0 4px 14px rgba(26,115,232,0.4); }
+
+      /* ── Result card ── */
+      #searchResult {
+        display: none;
+        margin-top: 20px;
+        border-radius: var(--radius);
+        overflow: hidden;
+        border: 1px solid var(--gray-200);
+        animation: fadeIn 0.3s ease;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .result-header {
+        background: var(--blue-light);
+        padding: 12px 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border-bottom: 1px solid var(--gray-200);
+      }
+
+      .result-header span {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--blue-dark);
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+      }
+
+      .result-body { background: #fff; }
+
+      .data-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 11px 16px;
+        border-bottom: 1px solid var(--gray-100);
+        gap: 12px;
+      }
+
+      .data-row:last-child { border-bottom: none; }
+
+      .label {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--gray-500);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+
+      .value {
+        font-size: 14px;
+        color: var(--text);
+        text-align: right;
+        font-weight: 500;
+      }
+
+      .status-badge {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+        background: #e6f4ea;
+        color: #1e7e34;
+      }
+
+      /* ── WhatsApp section ── */
+      #messageSection {
+        display: none;
+        margin-top: 20px;
+        padding: 16px;
+        background: #f0faf4;
+        border-radius: var(--radius);
+        border: 1px solid #c8e6c9;
+      }
+
+      .wa-label {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--green);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+        display: block;
+      }
+
+      #messageSection input {
+        width: 100%;
+        padding: 12px 14px;
+        border: 2px solid #c8e6c9;
+        border-radius: 10px;
+        font-size: 15px;
+        font-family: 'Hind Siliguri', sans-serif;
+        color: var(--text);
+        outline: none;
+        background: #fff;
+        transition: border-color 0.2s, box-shadow 0.2s;
+      }
+
+      #messageSection input:focus {
+        border-color: var(--green-wa);
+        box-shadow: 0 0 0 3px rgba(37,211,102,0.1);
+      }
+
+      .btn-whatsapp {
+        background: linear-gradient(135deg, var(--green-wa), var(--green-wa-dark));
+        color: #fff;
+        box-shadow: 0 2px 8px rgba(37,211,102,0.3);
+        display: none;
+        margin-top: 10px;
+        text-decoration: none;
+        text-align: center;
+      }
+
+      .btn-whatsapp:hover { box-shadow: 0 4px 14px rgba(37,211,102,0.4); }
+
+      /* ── Footer ── */
+      .footer {
+        background: var(--gray-900);
+        color: #e8eaed;
+        padding: 0;
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      .footer-section {
+        padding: 20px 24px;
+        border-bottom: 1px solid #3c4043;
+        transition: background 0.2s;
+      }
+
+      .footer-section:last-child { border-bottom: none; }
+
+      .footer-tag {
+        display: inline-block;
+        color: #8ab4f8;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        margin-bottom: 10px;
+        padding: 2px 8px;
+        background: rgba(138,180,248,0.1);
+        border-radius: 4px;
+      }
+
+      .footer b {
+        color: #fff;
+        font-size: 15px;
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .footer a {
+        color: #8ab4f8;
+        text-decoration: none;
+      }
+
+      .footer a:hover { text-decoration: underline; }
+
+      .footer-icon { margin-right: 4px; }
+
+      /* ── Error ── */
+      .error-msg {
+        text-align: center;
+        color: #d93025;
+        padding: 16px;
+        font-weight: 500;
+      }
+
+      .loading-msg {
+        text-align: center;
+        color: var(--gray-500);
+        padding: 16px;
+        font-size: 14px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
+    <div class="container">
 
-<div class="container">
-    <div class="card">
-        <div class="card-header text-center">
-            <h3 class="mb-0">Audit Selection List 2023-2024</h3>
+      <!-- Header -->
+      <div class="header">
+        <div class="badge">কর বর্ষ ২০২৩–২০২৪</div>
+        <div class="header-title">Audit Selection Search</div>
+        <div class="header-sub">অডিট সিলেকশন তথ্য যাচাই করুন</div>
+      </div>
+
+      <!-- Search -->
+      <div class="content">
+        <span class="search-label">অডিট আইডি / TIN নম্বর</span>
+        <div class="search-box">
+          <input type="text" id="searchID" placeholder="TIN বা অডিট আইডি লিখুন..."
+            onkeypress="if(event.keyCode==13) findAudit()">
+          <span class="search-icon">🔍</span>
         </div>
-        <div class="card-body">
-            <table id="auditTable" class="table table-hover table-bordered w-100">
-                <thead>
-                    <tr>
-                        <th>SL</th>
-                        <th>TIN</th>
-                        <th>Zone</th>
-                        <th>Circle</th>
-                        <th>Submission Type</th>
-                        <th>Assesment Year</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    </tbody>
-            </table>
+        <button class="btn btn-search" onclick="findAudit()">অনুসন্ধান করুন</button>
+
+        <!-- Result -->
+        <div id="searchResult"></div>
+
+        <!-- WhatsApp -->
+        <div id="messageSection">
+          <span class="wa-label">📱 WhatsApp মেসেজ পাঠান</span>
+          <input type="tel" id="clientPhone" placeholder="ক্লায়েন্টের মোবাইল নম্বর (01XXX...)" maxlength="11">
+          <button class="btn btn-whatsapp" id="whatsappLink" onclick="sendWhatsApp()">
+            ✉️ WhatsApp-এ মেসেজ পাঠান
+          </button>
         </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <div class="footer-section">
+          <span class="footer-tag">Web App Developed By</span>
+          <b>সাগর দাশ</b>
+          আয়কর আইনজীবী ও ফিন্যান্সিয়াল এডভাইজর<br>
+          সদস্য, সিলেট জেলা কর আইনজীবী সমিতি<br>
+          <span class="footer-icon">📞</span> Mobile: <a href="tel:01687036519">01687036519</a><br>
+          <span class="footer-icon">🌐</span> Website: <a href="https://sagar.pro.bd/" target="_blank">sagar.pro.bd</a>
+        </div>
+
+        <div class="footer-section">
+          <span class="footer-tag">বিশেষ সহযোগিতায়</span>
+          <b>Advocate Abdul Alim Pathan <small style="font-size:12px; font-weight:400; color:#9aa0a6;">LL.B, LL.M</small></b>
+          Income Tax, VAT & Immigration Consultant<br>
+          Vice President, Sylhet District Taxes Bar Association<br>
+          <span class="footer-icon">📍</span> Agrony-14, Londoni Road, Subidbazar, Sylhet<br>
+          <span class="footer-icon">📞</span> Phone: <a href="tel:+8801711922122">01711 922 122</a><br>
+          <span class="footer-icon">✉️</span> Email: <a href="mailto:pathansyl@gmail.com">pathansyl@gmail.com</a>
+        </div>
+      </div>
     </div>
-</div>
 
-<script src="https://code.jquery.com/jquery-3.7.0.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script>
+      var currentClient = null;
 
-<script>
-    $(document).ready(function() {
-        // CSV ফাইলটি পড়ার জন্য PapaParse ব্যবহার করা হয়েছে
-        Papa.parse("Audit Selection 2023-2024.xlsx - Sheet1.csv", {
-            download: true,
-            header: true,
-            skipEmptyLines: true,
-            complete: function(results) {
-                $('#auditTable').DataTable({
-                    data: results.data,
-                    columns: [
-                        { data: "SL" },
-                        { data: "TIN" },
-                        { data: "Zone" },
-                        { data: "Circle" },
-                        { data: "Submission Type" },
-                        { data: "Assesment Year" }
-                    ],
-                    dom: '<"d-flex justify-content-between align-items-center mb-3"Bf>rt<"d-flex justify-content-between align-items-center mt-3"ip>',
-                    buttons: [
-                        { extend: 'excel', className: 'btn btn-success btn-sm' },
-                        { extend: 'pdf', className: 'btn btn-danger btn-sm' },
-                        { extend: 'print', className: 'btn btn-primary btn-sm' }
-                    ],
-                    language: {
-                        search: "Search TIN/Circle/Zone:",
-                        searchPlaceholder: "Type here..."
-                    },
-                    pageLength: 20,
-                    responsive: true
-                });
-            }
-        });
-    });
-</script>
+      function findAudit() {
+        var id = document.getElementById('searchID').value.trim();
+        var resDiv = document.getElementById('searchResult');
+        var msgSec = document.getElementById('messageSection');
+        var waBtn = document.getElementById('whatsappLink');
 
-</body>
+        if (!id) return alert("অনুগ্রহ করে একটি আইডি লিখুন।");
+
+        resDiv.style.display = "block";
+        resDiv.innerHTML = "<p class='loading-msg'>⏳ তথ্য খোঁজা হচ্ছে...</p>";
+        msgSec.style.display = "none";
+
+        google.script.run.withSuccessHandler(function(data) {
+          if (data.found) {
+            currentClient = data;
+            resDiv.innerHTML = `
+              <div class="result-header">
+                <span>✅ তথ্য পাওয়া গেছে</span>
+              </div>
+              <div class="result-body">
+                <div class="data-row">
+                  <span class="label">Client Name</span>
+                  <span class="value">${data.name}</span>
+                </div>
+                <div class="data-row">
+                  <span class="label">Audit ID / TIN</span>
+                  <span class="value">${data.auditId}</span>
+                </div>
+                <div class="data-row">
+                  <span class="label">Status</span>
+                  <span class="value"><span class="status-badge">${data.status}</span></span>
+                </div>
+                <div class="data-row">
+                  <span class="label">Remarks</span>
+                  <span class="value">${data.remarks || '—'}</span>
+                </div>
+              </div>
+            `;
+            msgSec.style.display = "block";
+            waBtn.style.display = "block";
+          } else {
+            resDiv.innerHTML = "<p class='error-msg'>❌ কোনো তথ্য পাওয়া যায়নি।</p>";
+            msgSec.style.display = "none";
+          }
+        }).searchData(id);
+      }
+
+      function sendWhatsApp() {
+        var phone = document.getElementById('clientPhone').value.trim();
+        if (!phone || phone.length < 11) return alert("সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন।");
+
+        if (phone.startsWith('0')) {
+          phone = '88' + phone;
+        }
+
+        var message =
+          "আসসালামু আলাইকুম,\n" +
+          "সম্মানিত করদাতা " + currentClient.name + ",\n\n" +
+          "আপনার TIN: " + currentClient.auditId + " এর বিপরীতে ২০২৩-২০২৪ করবর্ষের রিটার্নটি অডিট সিলেকশনে অন্তর্ভুক্ত হয়েছে।\n\n" +
+          "প্রয়োজনীয় ব্যবস্থার জন্য অনুগ্রহ করে যত দ্রুত সম্ভব যোগাযোগ করুন।\n\n" +
+          "শুভেচ্ছান্তে,\n" +
+          "সাগর দাশ\n" +
+          "আয়কর আইনজীবী\n" +
+          "📞 01687036519\n\n" +
+          "🤝 In Association With:\n" +
+          "Advocate Abdul Alim Pathan\n" +
+          "📍 Agrony-14, Londoni Road, Subidbazar, Sylhet\n" +
+          "📞 01711 922 122";
+
+        var encodedMsg = encodeURIComponent(message);
+        window.open("https://wa.me/" + phone + "?text=" + encodedMsg, '_blank');
+      }
+    </script>
+  </body>
 </html>
