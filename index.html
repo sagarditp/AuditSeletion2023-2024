@@ -30,22 +30,17 @@
         .search-box input:focus { border-color: var(--blue); background: #fff; }
         .btn { width: 100%; padding: 14px; border: none; border-radius: var(--radius); font-weight: 700; cursor: pointer; margin-top: 12px; transition: 0.2s; }
         .btn-search { background: var(--blue); color: #fff; }
-        .btn-search:hover { background: var(--blue-dark); }
-        
         #searchResult { display: none; margin-top: 20px; border-radius: var(--radius); border: 1px solid var(--gray-200); overflow: hidden; }
         .result-header { background: var(--blue-light); padding: 12px 16px; font-weight: 700; color: var(--blue-dark); font-size: 13px; }
         .data-row { display: flex; justify-content: space-between; padding: 11px 16px; border-bottom: 1px solid #f1f3f4; font-size: 14px; }
         .status-badge { background: #e6f4ea; color: #1e7e34; padding: 3px 10px; border-radius: 20px; font-weight: 700; font-size: 12px; }
-
         #messageSection { display: none; margin-top: 20px; padding: 16px; background: #f0faf4; border-radius: var(--radius); border: 1px solid #c8e6c9; }
         .btn-whatsapp { background: linear-gradient(135deg, var(--green-wa), var(--green-wa-dark)); color: #fff; text-decoration: none; display: block; text-align: center; }
-
         .footer { background: var(--gray-900); color: #e8eaed; font-size: 13px; }
         .footer-section { padding: 20px 24px; border-bottom: 1px solid #3c4043; }
         .footer-tag { color: #8ab4f8; font-size: 10px; font-weight: 700; text-transform: uppercase; background: rgba(138,180,248,0.1); padding: 2px 8px; border-radius: 4px; display: inline-block; margin-bottom: 8px; }
         .footer b { color: #fff; font-size: 15px; display: block; margin-bottom: 4px; }
         .footer a { color: #8ab4f8; text-decoration: none; }
-        .loading { text-align: center; color: var(--gray-500); padding: 10px; }
     </style>
 </head>
 <body>
@@ -58,9 +53,9 @@
     </div>
 
     <div class="content">
-        <span class="search-label">অডিট আইডি / TIN নম্বর</span>
+        <span class="search-label">আপনার ১২ ডিজিটের TIN নম্বর লিখুন</span>
         <div class="search-box">
-            <input type="text" id="searchID" placeholder="TIN নম্বর লিখে এন্টার চাপুন..." onkeypress="if(event.keyCode==13) findAudit()">
+            <input type="text" id="searchID" placeholder="TIN লিখে অনুসন্ধান করুন..." onkeypress="if(event.keyCode==13) findAudit()">
         </div>
         <button class="btn btn-search" onclick="findAudit()">অনুসন্ধান করুন</button>
 
@@ -80,12 +75,6 @@
             আয়কর আইনজীবী ও সদস্য, সিলেট জেলা কর আইনজীবী সমিতি<br>
             Mobile: <a href="tel:01687036519">01687036519</a>
         </div>
-        <div class="footer-section">
-            <span class="footer-tag">বিশেষ সহযোগিতায়</span>
-            <b>Advocate Abdul Alim Pathan</b>
-            Vice President, Sylhet District Taxes Bar Association<br>
-            Phone: <a href="tel:+8801711922122">01711 922 122</a>
-        </div>
     </div>
 </div>
 
@@ -93,14 +82,21 @@
     let auditData = [];
     let foundRow = null;
 
-    // GitHub-এ থাকা CSV ফাইলটি লোড করা
+    // ফাইলটি সরাসরি GitHub URL থেকে পড়ার চেষ্টা করবে
+    const csvFileName = "Audit Selection 2023-2024.xlsx - Sheet1.csv";
+
     window.onload = function() {
-        Papa.parse("Audit Selection 2023-2024.xlsx - Sheet1.csv", {
+        Papa.parse(csvFileName, {
             download: true,
             header: true,
+            skipEmptyLines: true,
             complete: function(results) {
                 auditData = results.data;
-                console.log("Data Loaded Successfully");
+                console.log("Data loaded:", auditData.length);
+            },
+            error: function(err) {
+                console.error("Error loading CSV:", err);
+                alert("ডেটা ফাইলটি পাওয়া যায়নি। অনুগ্রহ করে ফাইলের নাম চেক করুন।");
             }
         });
     };
@@ -113,11 +109,16 @@
         if (!id) return alert("অনুগ্রহ করে TIN নম্বর লিখুন।");
         
         resDiv.style.display = "block";
-        resDiv.innerHTML = "<p class='loading'>⏳ যাচাই করা হচ্ছে...</p>";
+        resDiv.innerHTML = "<p style='text-align:center; padding:10px;'>⏳ যাচাই করা হচ্ছে...</p>";
         msgSec.style.display = "none";
 
-        // CSV-তে TIN কলামে সার্চ করা
-        foundRow = auditData.find(row => row.TIN && row.TIN.toString().includes(id));
+        // TIN কলামে সার্চ (Trim করা হয়েছে যাতে স্পেস থাকলেও সমস্যা না হয়)
+        foundRow = auditData.find(row => {
+            if(row.TIN) {
+                return row.TIN.toString().trim() === id;
+            }
+            return false;
+        });
 
         if (foundRow) {
             resDiv.innerHTML = `
@@ -125,20 +126,20 @@
                 <div class="data-row"><span style="color:var(--gray-500)">TIN</span><b>${foundRow.TIN}</b></div>
                 <div class="data-row"><span style="color:var(--gray-500)">Zone</span><b>${foundRow.Zone}</b></div>
                 <div class="data-row"><span style="color:var(--gray-500)">Circle</span><b>${foundRow.Circle}</b></div>
-                <div class="data-row"><span style="color:var(--gray-500)">Status</span><span class="status-badge">In Audit</span></div>
+                <div class="data-row"><span style="color:var(--gray-500)">Status</span><span class="status-badge">Selected for Audit</span></div>
             `;
             msgSec.style.display = "block";
         } else {
-            resDiv.innerHTML = "<p style='padding:16px; color:red; text-align:center;'>❌ কোনো তথ্য পাওয়া যায়নি।</p>";
+            resDiv.innerHTML = "<p style='padding:20px; color:#d93025; text-align:center; font-weight:600;'>❌ অডিট তালিকায় এই TIN পাওয়া যায়নি।</p>";
         }
     }
 
     function sendWhatsApp() {
         let phone = document.getElementById('clientPhone').value.trim();
-        if (!phone || phone.length < 11) return alert("সঠিক মোবাইল নম্বর দিন।");
+        if (!phone || phone.length < 11) return alert("সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন।");
         if (phone.startsWith('0')) phone = '88' + phone;
 
-        const message = `আসসালামু আলাইকুম,\nআপনার TIN: ${foundRow.TIN} এর বিপরীতে ২০২৩-২০২৪ করবর্ষের রিটার্নটি অডিট সিলেকশনে অন্তর্ভুক্ত হয়েছে।\n\nশুভেচ্ছান্তে,\nসাগর দাশ (আয়কর আইনজীবী)\n01687036519`;
+        const message = `আসসালামু আলাইকুম,\nআপনার TIN: ${foundRow.TIN} এর বিপরীতে ২০২৩-২০২৪ করবর্ষের রিটার্নটি অডিট সিলেকশনে অন্তর্ভুক্ত হয়েছে। দ্রুত যোগাযোগ করার অনুরোধ রইল।\n\nশুভেচ্ছান্তে,\nসাগর দাশ (আয়কর আইনজীবী)\n01687036519`;
         
         window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
     }
