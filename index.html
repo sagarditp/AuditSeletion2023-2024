@@ -9,19 +9,16 @@
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         :root { --blue: #1a73e8; --blue-dark: #1557b0; --blue-light: #e8f0fe; --gray-200: #e8eaed; --gray-900: #202124; --radius: 12px; }
-        body { font-family: 'Hind Siliguri', sans-serif; background: linear-gradient(135deg, #e8f0fe 0%, #f0f4ff 100%); min-height: 100vh; display: flex; justify-content: center; padding: 20px; }
-        .container { width: 100%; max-width: 500px; background: #fff; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden; height: fit-content; }
+        body { font-family: 'Hind Siliguri', sans-serif; background: #f0f4ff; min-height: 100vh; display: flex; justify-content: center; padding: 20px; }
+        .container { width: 100%; max-width: 500px; background: #fff; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; height: fit-content; }
         .header { background: linear-gradient(135deg, var(--blue), var(--blue-dark)); padding: 30px 20px; text-align: center; color: #fff; }
         .content { padding: 25px; }
-        .search-box input { width: 100%; padding: 15px; border: 2px solid var(--gray-200); border-radius: var(--radius); outline: none; font-size: 16px; transition: 0.3s; background: #f9f9f9; }
-        .search-box input:focus { border-color: var(--blue); background: #fff; box-shadow: 0 0 0 4px rgba(26,115,232,0.1); }
+        .search-box input { width: 100%; padding: 15px; border: 2px solid var(--gray-200); border-radius: var(--radius); outline: none; font-size: 16px; background: #f9f9f9; text-align: center; }
         .btn-search { width: 100%; padding: 15px; border: none; border-radius: var(--radius); background: var(--blue); color: #fff; font-weight: 700; cursor: pointer; margin-top: 15px; font-size: 16px; }
-        #loader { display: none; text-align: center; margin-top: 15px; color: #666; font-size: 14px; }
-        #searchResult { display: none; margin-top: 20px; border: 1px solid var(--gray-200); border-radius: var(--radius); overflow: hidden; animation: fadeIn 0.4s; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        #status { text-align: center; margin-top: 10px; font-size: 13px; color: #666; }
+        #searchResult { display: none; margin-top: 20px; border: 1px solid var(--gray-200); border-radius: var(--radius); overflow: hidden; background: #fff; }
         .result-header { background: var(--blue-light); padding: 12px; font-weight: 700; color: var(--blue-dark); text-align: center; }
         .data-row { display: flex; justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 15px; }
-        .data-row:last-child { border-bottom: none; }
         .footer { background: #202124; color: #ddd; padding: 20px; font-size: 13px; text-align: center; }
     </style>
 </head>
@@ -35,40 +32,38 @@
 
     <div class="content">
         <div class="search-box">
-            <input type="text" id="searchID" placeholder="আপনার ১২ ডিজিটের TIN লিখুন..." onkeypress="if(event.keyCode==13) findAudit()">
+            <input type="number" id="searchID" placeholder="আপনার ১২ ডিজিটের TIN লিখুন..." onkeypress="if(event.keyCode==13) findAudit()">
         </div>
         <button class="btn-search" onclick="findAudit()">অনুসন্ধান করুন</button>
-        <div id="loader">⏳ ডেটা লোড হচ্ছে (৭২,৩৩০+ রো)...</div>
+        <div id="status">⏳ ফাইল লোড হচ্ছে...</div>
         <div id="searchResult"></div>
     </div>
 
     <div class="footer">
         <b>সাগর দাশ</b>
         সদস্য, সিলেট জেলা কর আইনজীবী সমিতি<br>
-        📞 01687036519 | <a href="https://sagar.pro.bd" style="color:#8ab4f8; text-decoration:none;">sagar.pro.bd</a>
+        📞 01687036519
     </div>
 </div>
 
 <script>
     let auditData = [];
-    const csvFile = "Audit Selection 2023-2024.xlsx - Sheet1.csv";
+    // ফাইলের নাম একদম হুবহু হতে হবে
+    const csvFile = "Audit Selection 2023-2024.csv";
 
-    // পেজ লোড হওয়ার সাথে সাথে CSV থেকে ডেটা মেমোরিতে নিবে
     window.onload = function() {
-        const loader = document.getElementById('loader');
-        loader.style.display = "block";
-        
+        const status = document.getElementById('status');
         Papa.parse(csvFile, {
             download: true,
             header: true,
             skipEmptyLines: true,
             complete: function(results) {
                 auditData = results.data;
-                loader.style.display = "none";
-                console.log("Total Loaded:", auditData.length);
+                status.innerHTML = "✅ " + auditData.length + " টি ডেটা তৈরি আছে।";
+                console.log("Data Loaded.");
             },
             error: function() {
-                loader.innerHTML = "❌ ডেটা ফাইল পাওয়া যায়নি।";
+                status.innerHTML = "❌ ডেটা ফাইল পাওয়া যায়নি। ফাইলের নাম চেক করুন।";
             }
         });
     };
@@ -77,15 +72,12 @@
         const id = document.getElementById('searchID').value.trim();
         const resDiv = document.getElementById('searchResult');
         
-        if (!id) return alert("দয়া করে TIN নম্বর দিন।");
-        if (auditData.length === 0) return alert("ডেটা এখনো লোড হচ্ছে, দয়া করে ২ সেকেন্ড অপেক্ষা করুন।");
+        if (!id) { alert("TIN নম্বর লিখুন।"); return; }
+        if (auditData.length === 0) { alert("ডেটা এখনো লোড হয়নি।"); return; }
 
-        // ৭২ হাজার ডেটার মধ্যে দ্রুত সার্চ করার লজিক
+        // TIN কলামে সার্চ
         const found = auditData.find(row => {
-            if (!row.TIN) return false;
-            let tinStr = row.TIN.toString().trim();
-            // Scientific notation (4.58E+11) handle করার জন্য parseFloat ব্যবহার করা হয়েছে
-            return tinStr === id || parseFloat(tinStr).toString() === id;
+            return row.TIN && row.TIN.toString().trim() === id;
         });
 
         if (found) {
@@ -95,7 +87,7 @@
                 <div class="data-row"><span>TIN:</span><b>${found.TIN}</b></div>
                 <div class="data-row"><span>Zone:</span><b>${found.Zone}</b></div>
                 <div class="data-row"><span>Circle:</span><b>${found.Circle}</b></div>
-                <div class="data-row"><span>Year:</span><b>2023-2024</b></div>
+                <div class="data-row"><span>Year:</span><b>${found['Assesment Year']}</b></div>
             `;
         } else {
             resDiv.style.display = "block";
