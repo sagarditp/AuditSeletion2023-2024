@@ -6,97 +6,51 @@
     <title>Audit Selection Search 2023-2024</title>
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        :root {
-            --blue: #1a73e8; --blue-dark: #1557b0; --blue-light: #e8f0fe;
-            --green: #1a8f4e; --green-wa: #25D366; --green-wa-dark: #128C7E;
-            --gray-200: #e8eaed; --gray-500: #80868b; --gray-700: #5f6368;
-            --gray-900: #202124; --text: #3c4043; --radius: 12px;
-        }
-        body {
-            font-family: 'Hind Siliguri', sans-serif;
-            background: linear-gradient(135deg, #e8f0fe 0%, #f0f4ff 50%, #e8f5e9 100%);
-            min-height: 100vh; display: flex; justify-content: center; padding: 24px 16px;
-        }
+        :root { --blue: #1a73e8; --blue-dark: #1557b0; --blue-light: #e8f0fe; --gray-200: #e8eaed; --gray-700: #5f6368; --gray-900: #202124; --text: #3c4043; --radius: 12px; }
+        body { font-family: 'Hind Siliguri', sans-serif; background: #f0f4ff; display: flex; justify-content: center; padding: 24px 16px; }
         .container { width: 100%; max-width: 520px; background: #fff; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); overflow: hidden; }
         .header { background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%); padding: 28px 24px; text-align: center; color: #fff; }
-        .badge { display: inline-block; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3); padding: 4px 12px; border-radius: 20px; font-size: 11px; margin-bottom: 12px; text-transform: uppercase; }
         .content { padding: 28px 24px; }
-        .search-label { font-size: 13px; font-weight: 600; color: var(--gray-700); margin-bottom: 8px; display: block; }
-        .search-box { position: relative; }
-        .search-box input { width: 100%; padding: 14px; border: 2px solid var(--gray-200); border-radius: var(--radius); outline: none; background: #f8f9fa; transition: 0.2s; }
-        .search-box input:focus { border-color: var(--blue); background: #fff; }
-        .btn { width: 100%; padding: 14px; border: none; border-radius: var(--radius); font-weight: 700; cursor: pointer; margin-top: 12px; transition: 0.2s; }
-        .btn-search { background: var(--blue); color: #fff; }
-        #searchResult { display: none; margin-top: 20px; border-radius: var(--radius); border: 1px solid var(--gray-200); overflow: hidden; }
-        .result-header { background: var(--blue-light); padding: 12px 16px; font-weight: 700; color: var(--blue-dark); font-size: 13px; }
-        .data-row { display: flex; justify-content: space-between; padding: 11px 16px; border-bottom: 1px solid #f1f3f4; font-size: 14px; }
-        .status-badge { background: #e6f4ea; color: #1e7e34; padding: 3px 10px; border-radius: 20px; font-weight: 700; font-size: 12px; }
-        #messageSection { display: none; margin-top: 20px; padding: 16px; background: #f0faf4; border-radius: var(--radius); border: 1px solid #c8e6c9; }
-        .btn-whatsapp { background: linear-gradient(135deg, var(--green-wa), var(--green-wa-dark)); color: #fff; text-decoration: none; display: block; text-align: center; }
-        .footer { background: var(--gray-900); color: #e8eaed; font-size: 13px; }
-        .footer-section { padding: 20px 24px; border-bottom: 1px solid #3c4043; }
-        .footer-tag { color: #8ab4f8; font-size: 10px; font-weight: 700; text-transform: uppercase; background: rgba(138,180,248,0.1); padding: 2px 8px; border-radius: 4px; display: inline-block; margin-bottom: 8px; }
-        .footer b { color: #fff; font-size: 15px; display: block; margin-bottom: 4px; }
-        .footer a { color: #8ab4f8; text-decoration: none; }
+        .search-box input { width: 100%; padding: 14px; border: 2px solid var(--gray-200); border-radius: var(--radius); outline: none; margin-bottom: 12px; }
+        .btn-search { width: 100%; padding: 14px; border: none; border-radius: var(--radius); background: var(--blue); color: #fff; font-weight: 700; cursor: pointer; }
+        #searchResult { display: none; margin-top: 20px; border: 1px solid var(--gray-200); border-radius: var(--radius); overflow: hidden; }
+        .result-header { background: var(--blue-light); padding: 12px; font-weight: 700; color: var(--blue-dark); }
+        .data-row { display: flex; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid #eee; font-size: 14px; }
+        .loading { text-align: center; display: none; padding: 10px; color: var(--gray-500); }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <div class="badge">কর বর্ষ ২০২৩–২০২৪</div>
         <h2>Audit Selection Search</h2>
-        <p style="font-size: 13px; opacity: 0.8;">অডিট সিলেকশন তথ্য যাচাই করুন</p>
+        <p>কর বর্ষ ২০২৩–২০২৪</p>
     </div>
-
     <div class="content">
-        <span class="search-label">আপনার ১২ ডিজিটের TIN নম্বর লিখুন</span>
-        <div class="search-box">
-            <input type="text" id="searchID" placeholder="TIN লিখে অনুসন্ধান করুন..." onkeypress="if(event.keyCode==13) findAudit()">
-        </div>
-        <button class="btn btn-search" onclick="findAudit()">অনুসন্ধান করুন</button>
-
+        <input type="text" id="searchID" class="search-box" style="width:100%;" placeholder="TIN লিখে এন্টার দিন...">
+        <button class="btn-search" onclick="findAudit()">অনুসন্ধান করুন</button>
+        <div id="loader" class="loading">⏳ ডেটা লোড হচ্ছে, দয়া করে অপেক্ষা করুন...</div>
         <div id="searchResult"></div>
-
-        <div id="messageSection">
-            <span style="font-size: 12px; font-weight: 700; color: var(--green); display: block; margin-bottom: 8px;">📱 WHATSAPP মেসেজ পাঠান</span>
-            <input type="tel" id="clientPhone" placeholder="মোবাইল নম্বর (01XXX...)" maxlength="11" style="width:100%; padding:12px; border-radius:10px; border:2px solid #c8e6c9; outline:none; margin-bottom:10px;">
-            <button class="btn btn-whatsapp" onclick="sendWhatsApp()">✉️ WhatsApp-এ মেসেজ পাঠান</button>
-        </div>
-    </div>
-
-    <div class="footer">
-        <div class="footer-section">
-            <span class="footer-tag">Web App Developed By</span>
-            <b>সাগর দাশ</b>
-            আয়কর আইনজীবী ও সদস্য, সিলেট জেলা কর আইনজীবী সমিতি<br>
-            Mobile: <a href="tel:01687036519">01687036519</a>
-        </div>
     </div>
 </div>
 
 <script>
     let auditData = [];
-    let foundRow = null;
-
-    // ফাইলটি সরাসরি GitHub URL থেকে পড়ার চেষ্টা করবে
     const csvFileName = "Audit Selection 2023-2024.xlsx - Sheet1.csv";
 
+    // পেজ লোড হওয়ার সাথে সাথে ডেটা পড়া শুরু করবে
     window.onload = function() {
+        document.getElementById('loader').style.display = "block";
         Papa.parse(csvFileName, {
             download: true,
             header: true,
             skipEmptyLines: true,
             complete: function(results) {
                 auditData = results.data;
-                console.log("Data loaded:", auditData.length);
-            },
-            error: function(err) {
-                console.error("Error loading CSV:", err);
-                alert("ডেটা ফাইলটি পাওয়া যায়নি। অনুগ্রহ করে ফাইলের নাম চেক করুন।");
+                document.getElementById('loader').style.display = "none";
+                console.log("Total rows loaded:", auditData.length);
             }
         });
     };
@@ -104,46 +58,33 @@
     function findAudit() {
         const id = document.getElementById('searchID').value.trim();
         const resDiv = document.getElementById('searchResult');
-        const msgSec = document.getElementById('messageSection');
-
-        if (!id) return alert("অনুগ্রহ করে TIN নম্বর লিখুন।");
         
-        resDiv.style.display = "block";
-        resDiv.innerHTML = "<p style='text-align:center; padding:10px;'>⏳ যাচাই করা হচ্ছে...</p>";
-        msgSec.style.display = "none";
+        if (!auditData.length) return alert("ডেটা এখনো লোড হচ্ছে, কয়েক সেকেন্ড পর চেষ্টা করুন।");
+        if (!id) return alert("TIN নম্বর লিখুন।");
 
-        // TIN কলামে সার্চ (Trim করা হয়েছে যাতে স্পেস থাকলেও সমস্যা না হয়)
-        foundRow = auditData.find(row => {
-            if(row.TIN) {
-                return row.TIN.toString().trim() === id;
-            }
-            return false;
+        resDiv.style.display = "none";
+        
+        // অত্যন্ত সতর্কতার সাথে সার্চ করা হচ্ছে (Scientific notation handle করে)
+        let found = auditData.find(row => {
+            if (!row.TIN) return false;
+            let csvTin = row.TIN.toString().trim();
+            // যদি ফাইলে TIN বৈজ্ঞানিক সংকেতে থাকে (যেমন 4.58E+11), তবে এটি ইনপুটের সাথে মিলবে
+            return csvTin === id || parseFloat(csvTin).toString() === id;
         });
 
-        if (foundRow) {
+        if (found) {
+            resDiv.style.display = "block";
             resDiv.innerHTML = `
-                <div class="result-header">✅ তথ্য পাওয়া গেছে</div>
-                <div class="data-row"><span style="color:var(--gray-500)">TIN</span><b>${foundRow.TIN}</b></div>
-                <div class="data-row"><span style="color:var(--gray-500)">Zone</span><b>${foundRow.Zone}</b></div>
-                <div class="data-row"><span style="color:var(--gray-500)">Circle</span><b>${foundRow.Circle}</b></div>
-                <div class="data-row"><span style="color:var(--gray-500)">Status</span><span class="status-badge">Selected for Audit</span></div>
+                <div class="result-header">✅ অডিট তালিকায় পাওয়া গেছে</div>
+                <div class="data-row"><span>TIN:</span><b>${found.TIN}</b></div>
+                <div class="data-row"><span>Zone:</span><b>${found.Zone}</b></div>
+                <div class="data-row"><span>Circle:</span><b>${found.Circle}</b></div>
             `;
-            msgSec.style.display = "block";
         } else {
-            resDiv.innerHTML = "<p style='padding:20px; color:#d93025; text-align:center; font-weight:600;'>❌ অডিট তালিকায় এই TIN পাওয়া যায়নি।</p>";
+            resDiv.style.display = "block";
+            resDiv.innerHTML = "<p style='padding:15px; color:red; text-align:center;'>❌ অডিট তালিকায় এই TIN পাওয়া যায়নি।</p>";
         }
     }
-
-    function sendWhatsApp() {
-        let phone = document.getElementById('clientPhone').value.trim();
-        if (!phone || phone.length < 11) return alert("সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন।");
-        if (phone.startsWith('0')) phone = '88' + phone;
-
-        const message = `আসসালামু আলাইকুম,\nআপনার TIN: ${foundRow.TIN} এর বিপরীতে ২০২৩-২০২৪ করবর্ষের রিটার্নটি অডিট সিলেকশনে অন্তর্ভুক্ত হয়েছে। দ্রুত যোগাযোগ করার অনুরোধ রইল।\n\nশুভেচ্ছান্তে,\nসাগর দাশ (আয়কর আইনজীবী)\n01687036519`;
-        
-        window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
-    }
 </script>
-
 </body>
 </html>
